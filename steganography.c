@@ -92,6 +92,11 @@ FILE* openTextFile()
     return fp; 
 }
 
+void readTextFile()
+{
+
+}
+
 FILE* openImageFile()
 {
 
@@ -204,10 +209,10 @@ void confirmUI()
         printf("\n-s: %s", UI[3]);
         printf("\n-i; %s", UI[1]);
         printf("\n-o: %s\n\n", UI[2]);
-        printf("Are this the filenames/paths you want? (y/n)");
+        printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
         if(answer== 'y' || answer == 'Y') {printf("\nstarting encoding...\n\n"); return;}
-        else{printf("\nexiting program, re-run program with correct filenames/paths\n"); helpCompressing();}
+        else{printf("\nexiting program.\n"); helpCompressing();}
     }
 
     else if(strcmp(UI[0], "-d")==0)
@@ -215,10 +220,10 @@ void confirmUI()
         printf("\ndecompressing inputs:");
         printf("\n-i; %s", UI[1]);
         printf("\n-o: %s\n\n", UI[2]);
-        printf("Are this the filenames/paths you want? (y/n)");
+        printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
         if(answer== 'y' || answer == 'Y'){printf("\nstarting decoding...\n"); return;}
-        else{printf("\nexiting program, re-run program with correct filenames/paths\n"); helpDecompressing();}
+        else{printf("\nexiting program.\n"); helpDecompressing();}
     }
 }
 
