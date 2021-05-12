@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-FILE* openImageFile();
+FILE *openImageFile();
 
-FILE* openTextFile();
+char *readSecretMessage();
 
-void readTextFile();
+void confirmSecretMessage();
 
-void mainArguments(int argc, char* argv[]);
+void mainArguments(int argc, char *argv[]);
 
 void printBinary(unsigned char byte);
 
@@ -31,7 +31,7 @@ void helpDecompressing();
 char* UI[4];
 
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     prepareUI();
 
@@ -39,9 +39,9 @@ int main(int argc, char* argv[])
 
     confirmUI();
 
-    FILE* fpText = openTextFile();
+    char *secretMessage = readSecretMessage();
 
-    readTextFile();
+    confirmSecretMessage(secretMessage);
 
     /*
     unsigned char header[55];
@@ -85,23 +85,42 @@ void freeUI()
     for(int i=0; i<4; i++) free(UI[i]);
 }
 
-FILE* openTextFile()
+char* readSecretMessage()
 {
     FILE *fp = fopen(UI[3], "r");
-    if(fp == NULL) {printf("\nFile %s does not exist or could not be opened.\n", UI[3]); exit(EXIT_FAILURE);}
-    return fp; 
+    if(fp == NULL) {printf("\nFile %s does not exist or could not be opened.\n", UI[3]); exit(0);}
+
+    int characters=0;
+    for(char c=getc(fp);c != EOF; c=getc(fp))characters++;
+    char *secretMessage = (char*) calloc(characters, sizeof(char));
+
+    rewind(fp);
+    for(int i=0;i <characters; i++)
+    {
+        char c = getc(fp);
+        secretMessage[i] = c;
+    }
+    fclose(fp);
+    return secretMessage;
 }
 
-void readTextFile()
+void confirmSecretMessage(char *secretMessage)
 {
-
+    char answer;
+    printf("\nSecret message:\n\n%s\n\n",secretMessage);
+    fflush(stdin);
+    printf("Secret message correct? (y/n)");
+    scanf("%c",&answer);
+    if(answer == 'y' || answer == 'Y') printf("\nNice!!\n");
+    else {printf("\nPlease check '%s' file\n", UI[3]); exit(0);}
+    return;
 }
 
 FILE* openImageFile()
 {
 
     FILE *fp = fopen(UI[1], "rb");
-    if(fp == NULL){printf("\nFile %s does not exist or could not be opened.\n", UI[1]); exit(EXIT_FAILURE);}
+    if(fp == NULL){printf("\nFile %s does not exist or could not be opened.\n", UI[1]); exit(0);}
     return fp;
 }
 
@@ -211,7 +230,7 @@ void confirmUI()
         printf("\n-o: %s\n\n", UI[2]);
         printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
-        if(answer== 'y' || answer == 'Y') {printf("\nstarting encoding...\n\n"); return;}
+        if(answer== 'y' || answer == 'Y') return;
         else{printf("\nexiting program.\n"); helpCompressing();}
     }
 
@@ -222,7 +241,7 @@ void confirmUI()
         printf("\n-o: %s\n\n", UI[2]);
         printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
-        if(answer== 'y' || answer == 'Y'){printf("\nstarting decoding...\n"); return;}
+        if(answer== 'y' || answer == 'Y') return;
         else{printf("\nexiting program.\n"); helpDecompressing();}
     }
 }
