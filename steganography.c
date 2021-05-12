@@ -14,7 +14,7 @@ void prepareUI();
 
 void freeUI();
 
-void printUI();
+void confirmUI();
 
 void compressing(int argc, char *argv[]);
 
@@ -33,11 +33,14 @@ int main(int argc, char* argv[])
 
     mainArguments(argc, argv);
 
-    printUI();
-    
+    confirmUI();
+
+
+
+    /*
     unsigned char header[55];
 
-    FILE* fp = openFile();
+    FILE* fp = openImageFile();
 
     fread(header, 1, 54, fp);
     for(int i=0; i<55; i++)
@@ -56,6 +59,7 @@ int main(int argc, char* argv[])
         i++;
     }
     printf("\n");
+    */
 
     freeUI();
 
@@ -138,11 +142,8 @@ void compressing(int argc, char *argv[])
     {
         if(strcmp(argv[i], "-s")==0)
         {
-            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-i")==0) || (strcmp(argv[i+1],"-o")==0) )
-            {
-                printf("\n-s: No filename/path.\n");
-                helpCompressing();
-            }
+            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-i")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-s: No filename/path.\n"); helpCompressing();}
+
             UI[3] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[3], argv[i+1]);
             i++;
@@ -150,11 +151,7 @@ void compressing(int argc, char *argv[])
 
         else if(strcmp(argv[i], "-i")==0)
         {
-            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) )
-            {
-                printf("\n-i: No filename/path.\n");
-                helpCompressing();
-            }
+            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-i: No filename/path.\n"); helpCompressing();}
 
             UI[1] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[1], argv[i+1]);
@@ -163,11 +160,7 @@ void compressing(int argc, char *argv[])
 
         else if(strcmp(argv[i], "-o")==0)
         {
-            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0))
-            {
-                printf("\n-o: No filename/path.\n");
-                helpCompressing();
-            }
+            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0)) {printf("\n-o: No filename/path.\n"); helpCompressing();}
 
             UI[2] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[2], argv[i+1]);
@@ -183,19 +176,25 @@ void decompressing(int argc, char *argv[])
     {
         if(strcmp(argv[i], "-i")==0)
         {
-            printf("\n-i: %s",argv[i+1]);
+            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-i: No filename/path.\n"); helpDecompressing();}
+
+            UI[1] = (char*) calloc(strlen(argv[i+1]), 1);
+            strcpy(UI[1], argv[i+1]);
             i++;
         }
         else if(strcmp(argv[i], "-o")==0)
         {
-            printf("\n-o: %s",argv[i+1]);
+            if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0)) {printf("\n-o: No filename/path.\n"); helpDecompressing();}
+
+            UI[2] = (char*) calloc(strlen(argv[i+1]), 1);
+            strcpy(UI[2], argv[i+1]);
             i++;
         }
         else continue;
     } 
 }
 
-void printUI()
+void confirmUI()
 {
     char answer;
     if(strcmp(UI[0], "-c")==0)
