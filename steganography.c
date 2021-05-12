@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-FILE* openFile();
+FILE* openImageFile();
+
+FILE* openTextFile();
+
+void readTextFile();
 
 void mainArguments(int argc, char* argv[]);
 
@@ -35,12 +39,14 @@ int main(int argc, char* argv[])
 
     confirmUI();
 
+    FILE* fpText = openTextFile();
 
+    readTextFile();
 
     /*
     unsigned char header[55];
 
-    FILE* fp = openImageFile();
+    FILE* fpImage = openImageFile();
 
     fread(header, 1, 54, fp);
     for(int i=0; i<55; i++)
@@ -76,21 +82,21 @@ void prepareUI()
 
 void freeUI()
 {
-    for(int i=0; i<4; i++)
-    {
-        free(UI[i]);
-    }
+    for(int i=0; i<4; i++) free(UI[i]);
 }
 
-FILE* openFile()
+FILE* openTextFile()
+{
+    FILE *fp = fopen(UI[3], "r");
+    if(fp == NULL) {printf("\nFile %s does not exist or could not be opened.\n", UI[3]); exit(EXIT_FAILURE);}
+    return fp; 
+}
+
+FILE* openImageFile()
 {
 
     FILE *fp = fopen(UI[1], "rb");
-    if(fp == NULL)
-    {
-        printf("\nFile %s does not exist or could not be opened.\n", UI[1]);
-        exit(EXIT_FAILURE);
-    }
+    if(fp == NULL){printf("\nFile %s does not exist or could not be opened.\n", UI[1]); exit(EXIT_FAILURE);}
     return fp;
 }
 
@@ -143,7 +149,6 @@ void compressing(int argc, char *argv[])
         if(strcmp(argv[i], "-s")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-i")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-s: No filename/path.\n"); helpCompressing();}
-
             UI[3] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[3], argv[i+1]);
             i++;
@@ -152,7 +157,6 @@ void compressing(int argc, char *argv[])
         else if(strcmp(argv[i], "-i")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-i: No filename/path.\n"); helpCompressing();}
-
             UI[1] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[1], argv[i+1]);
             i++;
@@ -161,7 +165,6 @@ void compressing(int argc, char *argv[])
         else if(strcmp(argv[i], "-o")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0)) {printf("\n-o: No filename/path.\n"); helpCompressing();}
-
             UI[2] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[2], argv[i+1]);
             i++;
@@ -177,7 +180,6 @@ void decompressing(int argc, char *argv[])
         if(strcmp(argv[i], "-i")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-i: No filename/path.\n"); helpDecompressing();}
-
             UI[1] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[1], argv[i+1]);
             i++;
@@ -185,7 +187,6 @@ void decompressing(int argc, char *argv[])
         else if(strcmp(argv[i], "-o")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0)) {printf("\n-o: No filename/path.\n"); helpDecompressing();}
-
             UI[2] = (char*) calloc(strlen(argv[i+1]), 1);
             strcpy(UI[2], argv[i+1]);
             i++;
@@ -205,16 +206,8 @@ void confirmUI()
         printf("\n-o: %s\n\n", UI[2]);
         printf("Are this the filenames/paths you want? (y/n)");
         scanf(" %c", &answer);
-        if(answer== 'y' || answer == 'Y')
-        {
-            printf("\nstarting encoding...\n\n");
-            return;
-        } 
-        else
-        {
-            printf("\nexiting program, re-run program with correct filenames/paths\n");
-            helpCompressing();
-        }
+        if(answer== 'y' || answer == 'Y') {printf("\nstarting encoding...\n\n"); return;}
+        else{printf("\nexiting program, re-run program with correct filenames/paths\n"); helpCompressing();}
     }
 
     else if(strcmp(UI[0], "-d")==0)
@@ -224,29 +217,20 @@ void confirmUI()
         printf("\n-o: %s\n\n", UI[2]);
         printf("Are this the filenames/paths you want? (y/n)");
         scanf(" %c", &answer);
-        if(answer== 'y' || answer == 'Y')
-        {
-            printf("\nstarting decoding...\n");
-            return;
-        } 
-        else
-        {
-            printf("\nexiting program, re-run program with correct filenames/paths\n");
-            helpDecompressing();
-        }
-        return;
+        if(answer== 'y' || answer == 'Y'){printf("\nstarting decoding...\n"); return;}
+        else{printf("\nexiting program, re-run program with correct filenames/paths\n"); helpDecompressing();}
     }
 }
 
 void help()
 {
-    printf("\ncompressing: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage>");
+    printf("\ncompressing: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage>\n");
     printf("\n  -c                 --> compress");
     printf("\n  -s <filename/path> --> .txt message to compress in image");
     printf("\n  -i <filename/path> --> input .bmp file to compress message in");
-    printf("\n  -o <filename/path> --> output .bmp file with compressed message\n");
+    printf("\n  -o <filename/path> --> output .bmp file with compressed message\n\n");
 
-    printf("\ndecompressing: ./program -d -i <inputImage> -o <secretMessageOut.txt>");
+    printf("\ndecompressing: ./program -d -i <inputImage> -o <secretMessageOut.txt>\n");
     printf("\n  -d                 --> decompress");
     printf("\n  -i <filename/path> --> input bmp file with compressed message");
     printf("\n  -o <filename/path> --> ouput .txt file with compressed message");
