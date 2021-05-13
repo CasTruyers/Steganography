@@ -6,13 +6,15 @@ FILE *openImageFile();
 
 unsigned char *readImageHeader(FILE *fp);
 
-unsigned char *readImageContent(FILE *fp, char *secretMessage);
+unsigned char *readImageContent(FILE *fp, unsigned char *secretMessage);
 
 void setLSB(char *imageContent);
 
-char *readSecretMessage();
+unsigned char *readSecretMessage();
 
-void confirmSecretMessage();
+void confirmSecretMessage(unsigned char *secretMessage);
+
+void embedSecretMessage();
 
 void mainArguments(int argc, char *argv[]);
 
@@ -43,29 +45,27 @@ int main(int argc, char *argv[])
     mainArguments(argc, argv);
     confirmUI();
 
-    char *secretMessage = readSecretMessage();
+    unsigned char *secretMessage = readSecretMessage();
     confirmSecretMessage(secretMessage);
 
     FILE* fpImage = openImageFile();
 
     unsigned char *imageHeader = readImageHeader(fpImage);
     printf("\nimage header: ");
-    for(int i=0; i<(8*strlen((const char*)imageHeader)); i++)
-    {
-        printf("%X ", imageHeader[i]);
-    }
+    for(int i=0; i<(9*strlen((const char*)imageHeader)); i++) printf("%X ", imageHeader[i]);
     printf("\n");
 
-    unsigned char *imageContent = readImageContent(fpImage, secretMessage);
-    for(int i=0; i<strlen((const char*)imageContent); i++)
+    unsigned char *imageByte = readImageContent(fpImage, secretMessage);
+    for(int i=0; i<strlen((const char*)imageByte); i++)
     {
         printf("%d: ", i+1);
-        //printBinary(imageContent[i]);
-        imageContent[i] &= 0b11111110;
-        printBinary(imageContent[i]);
+        imageByte[i] &= 0b11111110;
+        printBinary(imageByte[i]);
         printf("\n");
     }
     printf("\n");
+
+    //embedSecretMessage(secretMessage, imageByte);
 
     freeUI();
 
@@ -84,14 +84,14 @@ void freeUI()
     for(int i=0; i<4; i++) free(UI[i]);
 }
 
-char* readSecretMessage()
+unsigned char* readSecretMessage()
 {
     FILE *fp = fopen(UI[3], "r");
     if(fp == NULL) {printf("\nFile %s does not exist or could not be opened.\n", UI[3]); exit(0);}
 
     int characters=0;
     for(char c=getc(fp);c != EOF; c=getc(fp))characters++;
-    char *secretMessage = (char*) calloc(characters, sizeof(char));
+    unsigned char *secretMessage = (unsigned char*) calloc(characters, sizeof(char));
 
     rewind(fp);
     for(int i=0;i <characters; i++)
@@ -103,7 +103,7 @@ char* readSecretMessage()
     return secretMessage;
 }
 
-void confirmSecretMessage(char *secretMessage)
+void confirmSecretMessage(unsigned char *secretMessage)
 {
     char answer;
     printf("\nSecret message:\n\n%s\n\n",secretMessage);
@@ -129,13 +129,18 @@ unsigned char* readImageHeader(FILE *fp)
     return imageHeader;
 }
 
-unsigned char* readImageContent(FILE *fp, char *secretMessage)
+unsigned char* readImageContent(FILE *fp, unsigned char *secretMessage)
 {
-    int length = 8*strlen(secretMessage);
+    int length = 8*strlen((const char*)secretMessage);
     printf("\nlength string: %d\nLSBs needed: %d\n\n", length/8, length);
-    unsigned char *imageContent = (unsigned char*) calloc(length, 1);
-    fread(imageContent, 1, length, fp);
-    return imageContent;
+    unsigned char *imageByte = (unsigned char*) calloc(length, 1);
+    fread(imageByte, 1, length, fp);
+    return imageByte;
+}
+
+void embedSecretMessage(unsigned char *secretmessage, unsigned char *imageByte)
+{
+
 }
 
 void printBinary(unsigned char byte)
