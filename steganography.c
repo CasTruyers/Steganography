@@ -6,7 +6,7 @@ FILE *openImageFile();
 
 unsigned char *readImageHeader(FILE *fp);
 
-unsigned char *readImageContent(FILE *fp, unsigned char *secretMessage);
+unsigned char *readImageBytes(FILE *fp, unsigned char *secretMessage);
 
 void setLSB(char *imageContent);
 
@@ -14,7 +14,7 @@ unsigned char *readSecretMessage();
 
 void confirmSecretMessage(unsigned char *secretMessage);
 
-void embedSecretMessage();
+void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte);
 
 void mainArguments(int argc, char *argv[]);
 
@@ -55,17 +55,16 @@ int main(int argc, char *argv[])
     for(int i=0; i<(9*strlen((const char*)imageHeader)); i++) printf("%X ", imageHeader[i]);
     printf("\n");
 
-    unsigned char *imageByte = readImageContent(fpImage, secretMessage);
+    unsigned char *imageByte = readImageBytes(fpImage, secretMessage);
     for(int i=0; i<strlen((const char*)imageByte); i++)
     {
-        printf("%d: ", i+1);
+        printf("%3d: ", i+1);
         imageByte[i] &= 0b11111110;
         printBinary(imageByte[i]);
-        printf("\n");
     }
     printf("\n");
 
-    //embedSecretMessage(secretMessage, imageByte);
+    embedSecretMessage(secretMessage, imageByte);
 
     freeUI();
 
@@ -129,7 +128,7 @@ unsigned char* readImageHeader(FILE *fp)
     return imageHeader;
 }
 
-unsigned char* readImageContent(FILE *fp, unsigned char *secretMessage)
+unsigned char* readImageBytes(FILE *fp, unsigned char *secretMessage)
 {
     int length = 8*strlen((const char*)secretMessage);
     printf("\nlength string: %d\nLSBs needed: %d\n\n", length/8, length);
@@ -138,9 +137,20 @@ unsigned char* readImageContent(FILE *fp, unsigned char *secretMessage)
     return imageByte;
 }
 
-void embedSecretMessage(unsigned char *secretmessage, unsigned char *imageByte)
+void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte)
 {
-
+    int byteCount=0, characters=strlen((const char*)secretMessage);
+    for(int j=0; j<characters; j++)
+    {
+        printf("\n\ncharacter %d:\n", j+1);
+        for(int i=0; i<8; i++)
+        {
+            if(secretMessage[j] & 0b00000001) imageByte[byteCount]+=1;
+            secretMessage[j] >>= 1;
+            printBinary(imageByte[byteCount]);
+            byteCount++;
+        }
+    }
 }
 
 void printBinary(unsigned char byte)
