@@ -4,6 +4,12 @@
 
 FILE *openImageFile();
 
+unsigned char *readImageHeader(FILE *fp);
+
+unsigned char *readImageContent(FILE *fp, char *secretMessage);
+
+void setLSB(char *imageContent);
+
 char *readSecretMessage();
 
 void confirmSecretMessage();
@@ -34,38 +40,32 @@ char* UI[4];
 int main(int argc, char *argv[])
 {
     prepareUI();
-
     mainArguments(argc, argv);
-
     confirmUI();
 
     char *secretMessage = readSecretMessage();
-
     confirmSecretMessage(secretMessage);
-
-    /*
-    unsigned char header[55];
 
     FILE* fpImage = openImageFile();
 
-    fread(header, 1, 54, fp);
-    for(int i=0; i<55; i++)
+    unsigned char *imageHeader = readImageHeader(fpImage);
+    printf("\nimage header: ");
+    for(int i=0; i<(8*strlen((const char*)imageHeader)); i++)
     {
-        printf("%X ", header[i]);
+        printf("%X ", imageHeader[i]);
     }
     printf("\n");
 
-    int i=0;
-    for(unsigned char c=getc(fp); i<2; c=getc(fp))
+    unsigned char *imageContent = readImageContent(fpImage, secretMessage);
+    for(int i=0; i<strlen((const char*)imageContent); i++)
     {
-        printBinary(c);
-        c &= 0b11111110;
-        printBinary(c);
+        printf("%d: ", i+1);
+        //printBinary(imageContent[i]);
+        imageContent[i] &= 0b11111110;
+        printBinary(imageContent[i]);
         printf("\n");
-        i++;
     }
     printf("\n");
-    */
 
     freeUI();
 
@@ -74,7 +74,6 @@ int main(int argc, char *argv[])
 
 
 //Functions
-
 void prepareUI()
 {
     for(int i=0; i<4; i++) UI[i] = (char*) realloc(UI[i], 1);
@@ -118,17 +117,31 @@ void confirmSecretMessage(char *secretMessage)
 
 FILE* openImageFile()
 {
-
     FILE *fp = fopen(UI[1], "rb");
     if(fp == NULL){printf("\nFile %s does not exist or could not be opened.\n", UI[1]); exit(0);}
     return fp;
 }
 
+unsigned char* readImageHeader(FILE *fp)
+{
+    unsigned char *imageHeader = (unsigned char*) calloc(54, 1); //1 of sizeof(char)?
+    fread(imageHeader, 1, 54, fp);
+    return imageHeader;
+}
+
+unsigned char* readImageContent(FILE *fp, char *secretMessage)
+{
+    int length = 8*strlen(secretMessage);
+    printf("\nlength string: %d\nLSBs needed: %d\n\n", length/8, length);
+    unsigned char *imageContent = (unsigned char*) calloc(length, 1);
+    fread(imageContent, 1, length, fp);
+    return imageContent;
+}
+
 void printBinary(unsigned char byte)
 {
-    printf("\ndecimal: %d",byte);
-    printf("\nhexdecimal: %02X",byte);
-    printf("\nBinary: ");
+    //printf("\nhexdecimal: %02X",byte);
+    printf("Binary: ");
     for(int i=7; i>=0; i--)
     {
         unsigned char bit = ((byte >> i) & 1);
