@@ -8,7 +8,7 @@ unsigned char *readImageHeader(FILE *fp);
 
 unsigned char *readImageBytes(FILE *fp, unsigned char *secretMessage);
 
-void setLSB(char *imageContent);
+void setLSB(unsigned char *imageByte);
 
 unsigned char *readSecretMessage();
 
@@ -51,23 +51,19 @@ int main(int argc, char *argv[])
     FILE* fpImage = openImageFile();
 
     unsigned char *imageHeader = readImageHeader(fpImage);
+
+    /*
     printf("\nimage header: ");
     for(int i=0; i<(9*strlen((const char*)imageHeader)); i++) printf("%X ", imageHeader[i]);
     printf("\n");
+    */
 
     unsigned char *imageByte = readImageBytes(fpImage, secretMessage);
-    for(int i=0; i<strlen((const char*)imageByte); i++)
-    {
-        printf("%3d: ", i+1);
-        imageByte[i] &= 0b11111110;
-        printBinary(imageByte[i]);
-    }
-    printf("\n");
+    setLSB(imageByte);
 
     embedSecretMessage(secretMessage, imageByte);
 
     freeUI();
-
     return 0;   
 }
 
@@ -135,6 +131,16 @@ unsigned char* readImageBytes(FILE *fp, unsigned char *secretMessage)
     unsigned char *imageByte = (unsigned char*) calloc(length, 1);
     fread(imageByte, 1, length, fp);
     return imageByte;
+}
+
+void setLSB(unsigned char *imageByte)
+{
+    for(int i=0; i<strlen((const char*)imageByte); i++)
+    {
+        printf("%3d: ", i+1);
+        imageByte[i] &= 0b11111110;
+        printBinary(imageByte[i]);
+    }
 }
 
 void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte)
