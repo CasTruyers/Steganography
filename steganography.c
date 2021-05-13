@@ -16,6 +16,10 @@ void confirmSecretMessage(unsigned char *secretMessage);
 
 void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte);
 
+char binaryToCharacter();
+
+unsigned char *extractSecretMessage(unsigned char *imageByte);
+
 void mainArguments(int argc, char *argv[]);
 
 void printBinary(unsigned char byte);
@@ -57,10 +61,9 @@ int main(int argc, char *argv[])
     for(int i=0; i<(9*strlen((const char*)imageHeader)); i++) printf("%X ", imageHeader[i]);
     printf("\n");
     */
-
+   
     unsigned char *imageByte = readImageBytes(fpImage, secretMessage);
     setLSB(imageByte);
-
     embedSecretMessage(secretMessage, imageByte);
 
     freeUI();
@@ -146,28 +149,79 @@ void setLSB(unsigned char *imageByte)
 void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte)
 {
     int byteCount=0, characters=strlen((const char*)secretMessage);
+    int binaryCharacter[8];
     for(int j=0; j<characters; j++)
     {
         printf("\n\ncharacter %d:\n", j+1);
         for(int i=0; i<8; i++)
         {
-            if(secretMessage[j] & 0b00000001) imageByte[byteCount]+=1;
+            if(secretMessage[j] & 0b00000001) {imageByte[byteCount]+=1; binaryCharacter[7-i] = 1;}
+            else binaryCharacter[7-i] = 0; 
             secretMessage[j] >>= 1;
             printBinary(imageByte[byteCount]);
             byteCount++;
         }
+        printf("\ncharacter:");
+        for(int i=0; i<8; i++) printf("%d", binaryCharacter[i]);
+
+        char character = binaryToCharacter(binaryCharacter);
+        printf(", %c", character);
     }
+    printf("\n");
+}
+
+char binaryToCharacter(int *binaryCharacter)
+{   
+    char character = 0b00000000;
+    for(int i=0; i<8; i++)
+    {
+        switch(i)
+        {
+            case 7: if(binaryCharacter[i]==1) character+=1; break;
+            case 6: if(binaryCharacter[i]==1) character+=2; break;
+            case 5: if(binaryCharacter[i]==1) character+=4; break;
+            case 4: if(binaryCharacter[i]==1) character+=8; break;
+            case 3: if(binaryCharacter[i]==1) character+=16; break;
+            case 2: if(binaryCharacter[i]==1) character+=32; break;
+            case 1: if(binaryCharacter[i]==1) character+=64; break;
+            case 0: if(binaryCharacter[i]==1) character+=128; break;
+            default: printf("\n\nError\n\n"); break;
+        }
+    }
+    return character;
+}
+
+unsigned char* extractSecretMessage(unsigned char *imageByte)
+{
+    unsigned char *extractedSecretMessage;
+    int binaryCharacter[8], bytecount=0;
+    
+    /*
+    openFile;
+    for(;;)
+    {
+        for(int i=0; i<8; i++)
+        {
+            if(allBytes[bytecount] & 0b00000001) binaryCharacter[7-i] = 1
+            else binaryCharacter[7-i] = 0 
+            bytecount++
+        }
+        char character = binaryToCharacter(binaryCharacter)
+        if(character == '$') end of message; return;
+        extractedSecretMessage[j] = character;
+        j++
+    }
+
+    use binaryToCharacter()
+    */
+    return extractedSecretMessage;
 }
 
 void printBinary(unsigned char byte)
 {
     //printf("\nhexdecimal: %02X",byte);
     printf("Binary: ");
-    for(int i=7; i>=0; i--)
-    {
-        unsigned char bit = ((byte >> i) & 1);
-        printf("%d", bit);
-    }
+    for(int i=7; i>=0; i--) {unsigned char bit = ((byte >> i) & 1); printf("%d", bit);};
     printf("\n");
 }
 
