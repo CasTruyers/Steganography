@@ -209,7 +209,7 @@ void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte)
 
 void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned char *imageRest, int imageSize)
 {
-    FILE *fp = fopen(UI[2],"ab");
+    FILE *fp = fopen(UI[2],"wb");
     int imageRestSize = imageSize - (int) strlen((const char*)imageByte);
     printf("\nheaderBytes: %d\nimageBytes: %lu\nimageRest: %d\n\n", 54 /*strlen((const char*)imageHeader)*/, strlen((const char*)imageByte), imageRestSize);
     fwrite(imageHeader, sizeof(unsigned char), 54, fp);
@@ -271,6 +271,7 @@ unsigned char* extractSecretMessage()
 
         extractedSecretMessage[j] = character;
     }
+    fclose(fpImage);
     free(bytes);
     return (unsigned char*) "error";
 }
