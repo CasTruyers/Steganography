@@ -48,10 +48,8 @@ void helpDecompressing();
 
 char* UI[4];
 
-
 int main(int argc, char *argv[])
 {
-    
     prepareUI();
     mainArguments(argc, argv);
     confirmUI();
@@ -69,16 +67,18 @@ int main(int argc, char *argv[])
 
         setLSB(imageByte);
         embedSecretMessage(secretMessage, imageByte);
-
         writeImage(imageHeader, imageByte, imageRest, imageSize);
+
+        free(secretMessage); free(imageHeader); free(imageByte); free(imageRest);
     }
+
     else if(strcmp(UI[0], "-d")==0)
     {
-        printf("\n\nDecompressing\n\n");
-
         unsigned char *secretMessage = extractSecretMessage();
         printf("\n\nsecretMessage: %s\n\n", secretMessage);
+        free(secretMessage);
     }
+
     else printf("\n\nError\n\n");
 
     freeUI();
@@ -247,7 +247,7 @@ unsigned char* extractSecretMessage()
 
     unsigned char *bytes = (unsigned char*)calloc(imageSize, sizeof(unsigned char));
     fread(bytes, imageSize, 1, fpImage);
-    unsigned char *extractedSecretMessage = (unsigned char*)calloc(imageSize, sizeof(unsigned char));
+    unsigned char *extractedSecretMessage = (unsigned char*)calloc(imageSize/8, sizeof(unsigned char));
     printf("\nCalloc succes\n");
     
     int bytecount=0, binaryCharacter[8];
@@ -267,10 +267,11 @@ unsigned char* extractSecretMessage()
         char character = binaryToCharacter(binaryCharacter);
         printf("\ncharacter = %c", character);
 
-        if(character == '~'){fclose(fpImage); return extractedSecretMessage;}
+        if(character == '~'){fclose(fpImage); free(bytes); return extractedSecretMessage;}
 
         extractedSecretMessage[j] = character;
     }
+    free(bytes);
     return (unsigned char*) "error";
 }
 
