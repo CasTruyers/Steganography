@@ -26,6 +26,8 @@ char binaryToCharacter();
 
 unsigned char *extractSecretMessage();
 
+void writeTXT(unsigned char *secretMessage);
+
 void mainArguments(int argc, char *argv[]);
 
 void printBinary(unsigned char byte);
@@ -75,6 +77,8 @@ int main(int argc, char *argv[])
     else if(strcmp(UI[0], "-d")==0)
     {
         unsigned char *secretMessage = extractSecretMessage();
+        writeTXT(secretMessage);
+
         printf("\n\nsecretMessage: %s\n\n", secretMessage);
         free(secretMessage);
     }
@@ -274,6 +278,13 @@ unsigned char* extractSecretMessage()
     fclose(fpImage);
     free(bytes);
     return (unsigned char*) "error";
+}
+
+void writeTXT(unsigned char *secretMessage)
+{
+    FILE *fp = fopen(UI[2], "w");
+    fwrite(secretMessage,strlen((const char*)secretMessage),1,fp);
+    fclose(fp);
 }
 
 void printBinary(unsigned char byte)
