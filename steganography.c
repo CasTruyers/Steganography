@@ -6,7 +6,11 @@ FILE *openImageFile();
 
 unsigned char *readImageHeader(FILE *fp);
 
+int imageSizef(unsigned char *imageHeader);
+
 unsigned char *readImageBytes(FILE *fp, unsigned char *secretMessage);
+
+unsigned char* readImageRest(FILE *fp, int imageSize, unsigned char *secretMessage);
 
 void setLSB(unsigned char *imageByte);
 
@@ -15,6 +19,8 @@ unsigned char *readSecretMessage();
 void confirmSecretMessage(unsigned char *secretMessage);
 
 void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte);
+
+void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned char *imageRest, int imageSize);
 
 char binaryToCharacter();
 
@@ -45,6 +51,7 @@ char* UI[4];
 
 int main(int argc, char *argv[])
 {
+    
     prepareUI();
     mainArguments(argc, argv);
     confirmUI();
@@ -56,10 +63,14 @@ int main(int argc, char *argv[])
 
         FILE* fpImage = openImageFile();
         unsigned char *imageHeader = readImageHeader(fpImage);
+        int imageSize = imageSizef(imageHeader);
         unsigned char *imageByte = readImageBytes(fpImage, secretMessage);
-        setLSB(imageByte);
+        unsigned char *imageRest = readImageRest(fpImage, imageSize, secretMessage);
 
+        setLSB(imageByte);
         embedSecretMessage(secretMessage, imageByte);
+
+        writeImage(imageHeader, imageByte, imageRest, imageSize);
     }
     else if(strcmp(UI[0], "-d")==0)
     {
@@ -130,8 +141,18 @@ FILE* openImageFile()
 unsigned char* readImageHeader(FILE *fp)
 {
     unsigned char *imageHeader = (unsigned char*) calloc(54, 1); //1 of sizeof(char)?
-    fread(imageHeader, 1, 54, fp);
+    fread(imageHeader, sizeof(unsigned char), 54, fp);
+    printf("\nlength of header: %d\n", (int) strlen((char*)imageHeader));
     return imageHeader;
+}
+
+int imageSizef(unsigned char *imageHeader)
+{
+    int breedte = *(int*)&imageHeader[18];
+    int hoogte = *(int*)&imageHeader[22];
+    int imageSize = breedte*hoogte*3;
+    printf("\nbreedte: %d\nhoogte: %d\nimageSize: %d\n", breedte, hoogte, imageSize);
+    return imageSize;
 }
 
 unsigned char* readImageBytes(FILE *fp, unsigned char *secretMessage)
@@ -141,6 +162,15 @@ unsigned char* readImageBytes(FILE *fp, unsigned char *secretMessage)
     unsigned char *imageByte = (unsigned char*) calloc(length, 1);
     fread(imageByte, 1, length, fp);
     return imageByte;
+}
+
+unsigned char* readImageRest(FILE *fp, int imageSize, unsigned char *secretMessage)
+{
+    int lengthImageByte = 8*strlen((const char*)secretMessage);
+    unsigned char *imageRest = (unsigned char *) calloc(imageSize - lengthImageByte, sizeof(unsigned char));
+    fread(imageRest, sizeof(unsigned char), imageSize, fp);
+    fclose(fp);
+    return imageRest;
 }
 
 void setLSB(unsigned char *imageByte)
@@ -175,6 +205,17 @@ void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte)
         printf(", %c", character);
     }
     printf("\n");
+}
+
+void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned char *imageRest, int imageSize)
+{
+    FILE *fp = fopen(UI[2],"ab");
+    int imageRestSize = imageSize - (int) strlen((const char*)imageByte);
+    printf("\nheaderBytes: %d\nimageBytes: %lu\nimageRest: %d\n\n", 54 /*strlen((const char*)imageHeader)*/, strlen((const char*)imageByte), imageRestSize);
+    fwrite(imageHeader, sizeof(unsigned char), 54, fp);
+    fwrite(imageByte, sizeof(unsigned char), strlen((const char*)imageByte), fp);
+    fwrite(imageRest, sizeof(unsigned char), imageRestSize, fp);
+    fclose(fp);
 }
 
 char binaryToCharacter(int *binaryCharacter)
@@ -226,10 +267,9 @@ unsigned char* extractSecretMessage(unsigned char *imageByte)
 
 void printBinary(unsigned char byte)
 {
-    //printf("\nhexdecimal: %02X",byte);
     printf("Binary: ");
     for(int i=7; i>=0; i--) {unsigned char bit = ((byte >> i) & 1); printf("%d", bit);};
-    printf("\n");
+    printf(" %02X\n",byte);
 }
 
 void mainArguments(int argc, char* argv[])
