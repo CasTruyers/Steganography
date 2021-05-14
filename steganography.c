@@ -24,7 +24,7 @@ void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned c
 
 char binaryToCharacter();
 
-unsigned char *extractSecretMessage(unsigned char *imageByte);
+unsigned char *extractSecretMessage();
 
 void mainArguments(int argc, char *argv[]);
 
@@ -75,14 +75,11 @@ int main(int argc, char *argv[])
     else if(strcmp(UI[0], "-d")==0)
     {
         printf("\n\nDecompressing\n\n");
+
+        unsigned char *secretMessage = extractSecretMessage();
+        printf("\n\nsecretMessage: %s\n\n", secretMessage);
     }
     else printf("\n\nError\n\n");
-
-    /*
-    printf("\nimage header: ");
-    for(int i=0; i<(9*strlen((const char*)imageHeader)); i++) printf("%X ", imageHeader[i]);
-    printf("\n");
-    */
 
     freeUI();
     return 0;   
@@ -107,7 +104,7 @@ unsigned char* readSecretMessage()
 
     int characters=0;
     for(char c=getc(fp);c != EOF; c=getc(fp))characters++;
-    unsigned char *secretMessage = (unsigned char*) calloc(characters, sizeof(char));
+    unsigned char *secretMessage = (unsigned char*) calloc(characters+1, sizeof(char));
 
     rewind(fp);
     for(int i=0;i <characters; i++)
@@ -115,6 +112,7 @@ unsigned char* readSecretMessage()
         char c = getc(fp);
         secretMessage[i] = c;
     }
+    secretMessage[characters] = '~';
     fclose(fp);
     return secretMessage;
 }
@@ -122,11 +120,13 @@ unsigned char* readSecretMessage()
 void confirmSecretMessage(unsigned char *secretMessage)
 {
     char answer;
-    printf("\nSecret message:\n\n%s\n\n",secretMessage);
+    printf("\nSecret message: ");
+    for(int i=0; i<(strlen((char*)secretMessage)-1);i++) printf("%c",secretMessage[i]);
+    printf("\n\n");
     fflush(stdin);
     printf("Secret message correct? (y/n)");
     scanf("%c",&answer);
-    if(answer == 'y' || answer == 'Y') printf("\nNice!!\n");
+    if(answer == 'y' || answer == 'Y');
     else {printf("\nPlease check '%s' file\n", UI[3]); exit(0);}
     return;
 }
@@ -239,30 +239,39 @@ char binaryToCharacter(int *binaryCharacter)
     return character;
 }
 
-unsigned char* extractSecretMessage(unsigned char *imageByte)
+unsigned char* extractSecretMessage()
 {
-    unsigned char *extractedSecretMessage;
-    int binaryCharacter[8], bytecount=0;
+    FILE* fpImage = openImageFile();
+    unsigned char *imageHeader = readImageHeader(fpImage);
+    int imageSize = imageSizef(imageHeader);
+
+    unsigned char *bytes = (unsigned char*)calloc(imageSize, sizeof(unsigned char));
+    fread(bytes, imageSize, 1, fpImage);
+    unsigned char *extractedSecretMessage = (unsigned char*)calloc(imageSize, sizeof(unsigned char));
+    printf("\nCalloc succes\n");
     
-    /*
-    openFile;
-    for(;;)
+    int bytecount=0, binaryCharacter[8];
+    for(int j=0;j<imageSize; j++)
     {
         for(int i=0; i<8; i++)
         {
-            if(allBytes[bytecount] & 0b00000001) binaryCharacter[7-i] = 1
-            else binaryCharacter[7-i] = 0 
-            bytecount++
+            printf("\n\nbytes: %X",bytes[bytecount]);
+            if(bytes[bytecount] & 0b00000001) {printf(", LSB = %d", 1); binaryCharacter[7-i] = 1;}
+            else {printf(", LSB = %d", 0); binaryCharacter[7-i] = 0;}
+            bytecount++;
         }
-        char character = binaryToCharacter(binaryCharacter)
-        if(character == '$') end of message; return;
-        extractedSecretMessage[j] = character;
-        j++
-    }
 
-    use binaryToCharacter()
-    */
-    return extractedSecretMessage;
+        printf("\n\nExtracted byte:");
+        for(int i=0; i<8; i++) printf(" %d", binaryCharacter[i]);
+
+        char character = binaryToCharacter(binaryCharacter);
+        printf("\ncharacter = %c", character);
+
+        if(character == '~'){fclose(fpImage); return extractedSecretMessage;}
+
+        extractedSecretMessage[j] = character;
+    }
+    return (unsigned char*) "error";
 }
 
 void printBinary(unsigned char byte)
