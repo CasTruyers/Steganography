@@ -49,22 +49,29 @@ int main(int argc, char *argv[])
     mainArguments(argc, argv);
     confirmUI();
 
-    unsigned char *secretMessage = readSecretMessage();
-    confirmSecretMessage(secretMessage);
+    if(strcmp(UI[0], "-c")==0)
+    {
+        unsigned char *secretMessage = readSecretMessage();
+        confirmSecretMessage(secretMessage);
 
-    FILE* fpImage = openImageFile();
+        FILE* fpImage = openImageFile();
+        unsigned char *imageHeader = readImageHeader(fpImage);
+        unsigned char *imageByte = readImageBytes(fpImage, secretMessage);
+        setLSB(imageByte);
 
-    unsigned char *imageHeader = readImageHeader(fpImage);
+        embedSecretMessage(secretMessage, imageByte);
+    }
+    else if(strcmp(UI[0], "-d")==0)
+    {
+        printf("\n\nDecompressing\n\n");
+    }
+    else printf("\n\nError\n\n");
 
     /*
     printf("\nimage header: ");
     for(int i=0; i<(9*strlen((const char*)imageHeader)); i++) printf("%X ", imageHeader[i]);
     printf("\n");
     */
-   
-    unsigned char *imageByte = readImageBytes(fpImage, secretMessage);
-    setLSB(imageByte);
-    embedSecretMessage(secretMessage, imageByte);
 
     freeUI();
     return 0;   
