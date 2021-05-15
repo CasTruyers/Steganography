@@ -4,6 +4,12 @@
 
 FILE *openImageFile();
 
+void mainArguments(int argc, char *argv[]);
+
+void compressing(int argc, char *argv[]);
+
+void decompressing(int argc, char *argv[]);
+
 unsigned char *readImageHeader(FILE *fp);
 
 int imageSizef(unsigned char *imageHeader);
@@ -20,29 +26,23 @@ void confirmSecretMessage(unsigned char *secretMessage);
 
 void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte);
 
-void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned char *imageRest, int imageSize);
-
 char binaryToCharacter();
+
+void printBinary(unsigned char byte);
+
+void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned char *imageRest, int imageSize);
 
 unsigned char *extractSecretMessage();
 
 void writeTXT(unsigned char *secretMessage);
 
-void mainArguments(int argc, char *argv[]);
-
-void printBinary(unsigned char byte);
-
-void help();
-
 void prepareUI();
-
-void freeUI();
 
 void confirmUI();
 
-void compressing(int argc, char *argv[]);
+void freeUI();
 
-void decompressing(int argc, char *argv[]);
+void help();
 
 void helpCompressing();
 
@@ -146,7 +146,7 @@ unsigned char* readImageHeader(FILE *fp)
 {
     unsigned char *imageHeader = (unsigned char*) calloc(54, 1); //1 of sizeof(char)?
     fread(imageHeader, sizeof(unsigned char), 54, fp);
-    printf("\nlength of header: %d\n", (int) strlen((char*)imageHeader));
+    //printf("\nlength of header: %d\n", (int) strlen((char*)imageHeader));
     return imageHeader;
 }
 
@@ -155,14 +155,14 @@ int imageSizef(unsigned char *imageHeader)
     int breedte = *(int*)&imageHeader[18];
     int hoogte = *(int*)&imageHeader[22];
     int imageSize = breedte*hoogte*3;
-    printf("\nbreedte: %d\nhoogte: %d\nimageSize: %d\n", breedte, hoogte, imageSize);
+    //printf("\nbreedte: %d\nhoogte: %d\nimageSize: %d\n", breedte, hoogte, imageSize);
     return imageSize;
 }
 
 unsigned char* readImageBytes(FILE *fp, unsigned char *secretMessage)
 {
     int length = 8*strlen((const char*)secretMessage);
-    printf("\nlength string: %d\nLSBs needed: %d\n\n", length/8, length);
+    //printf("\nlength string: %d\nLSBs needed: %d\n\n", length/8, length);
     unsigned char *imageByte = (unsigned char*) calloc(length, 1);
     fread(imageByte, 1, length, fp);
     return imageByte;
@@ -181,9 +181,9 @@ void setLSB(unsigned char *imageByte)
 {
     for(int i=0; i<strlen((const char*)imageByte); i++)
     {
-        printf("%3d: ", i+1);
+        //printf("%3d: ", i+1);
         imageByte[i] &= 0b11111110;
-        printBinary(imageByte[i]);
+        //printBinary(imageByte[i]);
     }
 }
 
@@ -193,20 +193,19 @@ void embedSecretMessage(unsigned char *secretMessage, unsigned char *imageByte)
     int binaryCharacter[8];
     for(int j=0; j<characters; j++)
     {
-        printf("\n\ncharacter %d:\n", j+1);
+        //printf("\n\ncharacter %d:\n", j+1);
         for(int i=0; i<8; i++)
         {
             if(secretMessage[j] & 0b00000001) {imageByte[byteCount]+=1; binaryCharacter[7-i] = 1;}
             else binaryCharacter[7-i] = 0; 
             secretMessage[j] >>= 1;
-            printBinary(imageByte[byteCount]);
+            //printBinary(imageByte[byteCount]);
             byteCount++;
         }
-        printf("\ncharacter:");
-        for(int i=0; i<8; i++) printf("%d", binaryCharacter[i]);
-
+        //printf("\ncharacter:");
+        //for(int i=0; i<8; i++) printf("%d", binaryCharacter[i]);
         char character = binaryToCharacter(binaryCharacter);
-        printf(", %c", character);
+        //printf(", %c", character);
     }
     printf("\n");
 }
@@ -215,7 +214,7 @@ void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned c
 {
     FILE *fp = fopen(UI[2],"wb");
     int imageRestSize = imageSize - (int) strlen((const char*)imageByte);
-    printf("\nheaderBytes: %d\nimageBytes: %lu\nimageRest: %d\n\n", 54 /*strlen((const char*)imageHeader)*/, strlen((const char*)imageByte), imageRestSize);
+    //printf("\nheaderBytes: %d\nimageBytes: %lu\nimageRest: %d\n\n", 54 /*strlen((const char*)imageHeader)*/, strlen((const char*)imageByte), imageRestSize); VRAAG!!
     fwrite(imageHeader, sizeof(unsigned char), 54, fp);
     fwrite(imageByte, sizeof(unsigned char), strlen((const char*)imageByte), fp);
     fwrite(imageRest, sizeof(unsigned char), imageRestSize, fp);
@@ -252,24 +251,24 @@ unsigned char* extractSecretMessage()
     unsigned char *bytes = (unsigned char*)calloc(imageSize, sizeof(unsigned char));
     fread(bytes, imageSize, 1, fpImage);
     unsigned char *extractedSecretMessage = (unsigned char*)calloc(imageSize/8, sizeof(unsigned char));
-    printf("\nCalloc succes\n");
+    //printf("\nCalloc succes\n");
     
     int bytecount=0, binaryCharacter[8];
     for(int j=0;j<imageSize; j++)
     {
         for(int i=0; i<8; i++)
         {
-            printf("\n\nbytes: %X",bytes[bytecount]);
-            if(bytes[bytecount] & 0b00000001) {printf(", LSB = %d", 1); binaryCharacter[7-i] = 1;}
-            else {printf(", LSB = %d", 0); binaryCharacter[7-i] = 0;}
+            //printf("\n\nbytes: %X",bytes[bytecount]);
+            if(bytes[bytecount] & 0b00000001) binaryCharacter[7-i] = 1;
+            else binaryCharacter[7-i] = 0;
             bytecount++;
         }
 
-        printf("\n\nExtracted byte:");
-        for(int i=0; i<8; i++) printf(" %d", binaryCharacter[i]);
-
+        //printf("\n\nExtracted byte:");
+        //for(int i=0; i<8; i++) printf(" %d", binaryCharacter[i]);
+        
         char character = binaryToCharacter(binaryCharacter);
-        printf("\ncharacter = %c", character);
+        //printf("\ncharacter = %c", character);
 
         if(character == '~'){fclose(fpImage); free(bytes); return extractedSecretMessage;}
 
@@ -381,10 +380,9 @@ void confirmUI()
     char answer;
     if(strcmp(UI[0], "-c")==0)
     {
-        printf("\ncompressing inputs:");
-        printf("\n-s: %s", UI[3]);
-        printf("\n-i; %s", UI[1]);
-        printf("\n-o: %s\n\n", UI[2]);
+        printf("\ninput text: %s", UI[3]);
+        printf("\ninput photo; %s", UI[1]);
+        printf("\noutput photo: %s\n\n", UI[2]);
         printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
         if(answer== 'y' || answer == 'Y') return;
@@ -393,9 +391,8 @@ void confirmUI()
 
     else if(strcmp(UI[0], "-d")==0)
     {
-        printf("\ndecompressing inputs:");
-        printf("\n-i; %s", UI[1]);
-        printf("\n-o: %s\n\n", UI[2]);
+        printf("\ninputPhoto; %s", UI[1]);
+        printf("\noutputPhoto: %s\n\n", UI[2]);
         printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
         if(answer== 'y' || answer == 'Y') return;
