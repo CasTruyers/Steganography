@@ -108,7 +108,7 @@ unsigned char* readSecretMessage()
 
     int characters=0;
     for(char c=getc(fp);c != EOF; c=getc(fp))characters++;
-    unsigned char *secretMessage = (unsigned char*) calloc(characters+1, sizeof(char));
+    unsigned char *secretMessage = (unsigned char*) calloc(characters, sizeof(char));
 
     rewind(fp);
     for(int i=0;i <characters; i++)
@@ -124,7 +124,7 @@ unsigned char* readSecretMessage()
 void confirmSecretMessage(unsigned char *secretMessage)
 {
     char answer;
-    printf("\nSecret message: ");
+    printf("\nSecret message: \n");
     for(int i=0; i<(strlen((char*)secretMessage)-1);i++) printf("%c",secretMessage[i]);
     printf("\n\n");
     fflush(stdin);
@@ -266,7 +266,7 @@ unsigned char* extractSecretMessage()
 
         //printf("\n\nExtracted byte:");
         //for(int i=0; i<8; i++) printf(" %d", binaryCharacter[i]);
-        
+
         char character = binaryToCharacter(binaryCharacter);
         //printf("\ncharacter = %c", character);
 
@@ -329,7 +329,7 @@ void compressing(int argc, char *argv[])
         if(strcmp(argv[i], "-s")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-i")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-s: No filename/path.\n"); helpCompressing();}
-            UI[3] = (char*) calloc(strlen(argv[i+1]), 1);
+            UI[3] = (char*) calloc(strlen(argv[i+1])+2, 1);
             strcpy(UI[3], argv[i+1]);
             i++;
         }
@@ -337,7 +337,7 @@ void compressing(int argc, char *argv[])
         else if(strcmp(argv[i], "-i")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-i: No filename/path.\n"); helpCompressing();}
-            UI[1] = (char*) calloc(strlen(argv[i+1]), 1);
+            UI[1] = (char*) calloc(strlen(argv[i+1])+2, 1);
             strcpy(UI[1], argv[i+1]);
             i++;
         }
@@ -345,7 +345,7 @@ void compressing(int argc, char *argv[])
         else if(strcmp(argv[i], "-o")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0)) {printf("\n-o: No filename/path.\n"); helpCompressing();}
-            UI[2] = (char*) calloc(strlen(argv[i+1]), 1);
+            UI[2] = (char*) calloc(strlen(argv[i+1])+2, 1);
             strcpy(UI[2], argv[i+1]);
             i++;
         }
@@ -360,14 +360,14 @@ void decompressing(int argc, char *argv[])
         if(strcmp(argv[i], "-i")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-o")==0) ) {printf("\n-i: No filename/path.\n"); helpDecompressing();}
-            UI[1] = (char*) calloc(strlen(argv[i+1]), 1);
+            UI[1] = (char*) calloc(strlen(argv[i+1])+2, 1);
             strcpy(UI[1], argv[i+1]);
             i++;
         }
         else if(strcmp(argv[i], "-o")==0)
         {
             if( (argv[i+1]==NULL) || (strcmp(argv[i+1],"-s")==0) || (strcmp(argv[i+1],"-i")==0)) {printf("\n-o: No filename/path.\n"); helpDecompressing();}
-            UI[2] = (char*) calloc(strlen(argv[i+1]), 1);
+            UI[2] = (char*) calloc(strlen(argv[i+1])+2, 1);
             strcpy(UI[2], argv[i+1]);
             i++;
         }
@@ -392,7 +392,7 @@ void confirmUI()
     else if(strcmp(UI[0], "-d")==0)
     {
         printf("\ninputPhoto; %s", UI[1]);
-        printf("\noutputPhoto: %s\n\n", UI[2]);
+        printf("\noutputText: %s\n\n", UI[2]);
         printf("Are the filenames/paths correct? (y/n)");
         scanf(" %c", &answer);
         if(answer== 'y' || answer == 'Y') return;
