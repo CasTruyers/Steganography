@@ -20,23 +20,23 @@ Download "steganography.c" and compile it.
 To use the program you will need to pass arguments.
 
 example:
-to compress: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage>
+to compress: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage> <br>  
 to decompress: ./program -d -i <inputImage> -o <secretMessageOut.txt>
 
-  -First argument "-c" or "-d" stands for compressing("-c") or decompressing ("-d").
+  -First argument "-c" or "-d" stands for compressing("-c") or decompressing ("-d"). <br>  
   Choose if you want to encrypt(compress) or decrypt(decompress) a message.
 
-  -s <filename/path>
-  When compressing.  --> .txt file with message to compress in image.
+  -s <filename/path> <br>  
+  When compressing.  --> .txt file with message to compress in image. <br>  
   
-  -i <filename/path>
-  When compressing   --> input .bmp image file to compress message in.
-  when decompressing --> input bmp file with compressed message.
+  -i <filename/path> <br>  
+  When compressing   --> input .bmp image file to compress message in. <br>  
+  when decompressing --> input bmp file with compressed message. <br>  
   
   
-  -o <filename/path>
-  When compressing   --> output .bmp file with compressed message.
-  When decompressing --> ouput .txt file with compressed message.
+  -o <filename/path> <br>  
+  When compressing   --> output .bmp file with compressed message. <br>  
+  When decompressing --> ouput .txt file with compressed message. <br>  
   
   
   
