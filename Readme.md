@@ -1,22 +1,22 @@
-#STEGANOGRAPHY
+# STEGANOGRAPHY
 
 **Steganography is the practice of hiding a secret message inside something that is not secret.**
 
 *This program is writtin on a UNIX based machine and might not work on Windows*
 
-###DESCRIPTION
+### DESCRIPTION
 This program can encrypt a text in an image. Thus, secrets messages can be sent between people with this program by message-encrypted images.
 The same program can also decrypt the encrypted images to release the secret message.
 The program is written in c and the file format in which encrypting is supported is .bmp (bitmap file)
 
-###FEATURES
+### FEATURES
 Reading .txt file and encrypting the message in .bmp image file.
 Decrypting an encrypted .bmp image file and writing the secret message in .txt file.
 
-###HOW TO INSTALL
+### HOW TO INSTALL
 Download "steganography.c" and compile it.
 
-###HOW TO USE
+### HOW TO USE
 To use the program you will need to pass arguments.
 
 example:
