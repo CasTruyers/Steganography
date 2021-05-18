@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         unsigned char *secretMessage = extractSecretMessage();
         writeTXT(secretMessage);
 
-        printf("\n\nsecretMessage: %s\n\n", secretMessage);
+        printf("\n\nsecretMessage:\n%s\n", secretMessage);
         free(secretMessage);
     }
 
@@ -108,7 +108,7 @@ unsigned char* readSecretMessage()
 
     int characters=0;
     for(char c=getc(fp);c != EOF; c=getc(fp))characters++;
-    unsigned char *secretMessage = (unsigned char*) calloc(characters, sizeof(char));
+    unsigned char *secretMessage = (unsigned char*) calloc(characters, 1);
 
     rewind(fp);
     for(int i=0;i <characters; i++)
@@ -145,7 +145,7 @@ FILE* openImageFile()
 unsigned char* readImageHeader(FILE *fp)
 {
     unsigned char *imageHeader = (unsigned char*) calloc(54, 1); //1 of sizeof(char)?
-    fread(imageHeader, sizeof(unsigned char), 54, fp);
+    fread(imageHeader, 1, 54, fp);
     //printf("\nlength of header: %d\n", (int) strlen((char*)imageHeader));
     return imageHeader;
 }
@@ -171,8 +171,8 @@ unsigned char* readImageBytes(FILE *fp, unsigned char *secretMessage)
 unsigned char* readImageRest(FILE *fp, int imageSize, unsigned char *secretMessage)
 {
     int lengthImageByte = 8*strlen((const char*)secretMessage);
-    unsigned char *imageRest = (unsigned char *) calloc(imageSize - lengthImageByte, sizeof(unsigned char));
-    fread(imageRest, sizeof(unsigned char), imageSize, fp);
+    unsigned char *imageRest = (unsigned char *) calloc(imageSize - lengthImageByte, 1);
+    fread(imageRest, 1, imageSize, fp);
     fclose(fp);
     return imageRest;
 }
@@ -215,9 +215,9 @@ void writeImage(unsigned char *imageHeader, unsigned char *imageByte, unsigned c
     FILE *fp = fopen(UI[2],"wb");
     int imageRestSize = imageSize - (int) strlen((const char*)imageByte);
     //printf("\nheaderBytes: %d\nimageBytes: %lu\nimageRest: %d\n\n", 54 /*strlen((const char*)imageHeader)*/, strlen((const char*)imageByte), imageRestSize); VRAAG!!
-    fwrite(imageHeader, sizeof(unsigned char), 54, fp);
-    fwrite(imageByte, sizeof(unsigned char), strlen((const char*)imageByte), fp);
-    fwrite(imageRest, sizeof(unsigned char), imageRestSize, fp);
+    fwrite(imageHeader, 1, 54, fp);
+    fwrite(imageByte, 1, strlen((const char*)imageByte), fp);
+    fwrite(imageRest, 1, imageRestSize, fp);
     fclose(fp);
 }
 
@@ -248,9 +248,9 @@ unsigned char* extractSecretMessage()
     unsigned char *imageHeader = readImageHeader(fpImage);
     int imageSize = imageSizef(imageHeader);
 
-    unsigned char *bytes = (unsigned char*)calloc(imageSize, sizeof(unsigned char));
+    unsigned char *bytes = (unsigned char*)calloc(imageSize, 1);
     fread(bytes, imageSize, 1, fpImage);
-    unsigned char *extractedSecretMessage = (unsigned char*)calloc(imageSize/8, sizeof(unsigned char));
+    unsigned char *extractedSecretMessage = (unsigned char*)calloc(imageSize/8, 1);
     //printf("\nCalloc succes\n");
     
     int bytecount=0, binaryCharacter[8];
@@ -402,13 +402,13 @@ void confirmUI()
 
 void help()
 {
-    printf("\ncompressing: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage>\n");
+    printf("\nto compress: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage>\n");
     printf("\n  -c                 --> compress");
     printf("\n  -s <filename/path> --> .txt message to compress in image");
     printf("\n  -i <filename/path> --> input .bmp file to compress message in");
     printf("\n  -o <filename/path> --> output .bmp file with compressed message\n\n");
 
-    printf("\ndecompressing: ./program -d -i <inputImage> -o <secretMessageOut.txt>\n");
+    printf("\nto decompress: ./program -d -i <inputImage> -o <secretMessageOut.txt>\n");
     printf("\n  -d                 --> decompress");
     printf("\n  -i <filename/path> --> input bmp file with compressed message");
     printf("\n  -o <filename/path> --> ouput .txt file with compressed message");
