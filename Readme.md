@@ -23,12 +23,19 @@ example:
 to compress: ./program -c -s <secretMessageIn.txt> -i <inputImage> -o <outputImage>
 to decompress: ./program -d -i <inputImage> -o <secretMessageOut.txt>
 
-  -First argument "-c" or "-d" stands for compressing("-c") or decompressing ("-d"). Here you choose if you want to encrypt(compress) a message or decrypt(decompress) a message.
+  -First argument "-c" or "-d" stands for compressing("-c") or decompressing ("-d").
+  Here you choose if you want to encrypt(compress) or decrypt(decompress) a message.
 
-  -s <filename/path> --> .txt file with message to compress in image.
+  -s <filename/path>
+  When compressing.  --> .txt file with message to compress in image.
   
-  -i <filename/path> when compresing  --> input .bmp file to compress message in OR when decompressing    --> input bmp file with compressed message.
-  -o <filename/path> when compressing --> output .bmp file with compressed message OR when decompressing  --> ouput .txt file with compressed message.
+  -i <filename/path>
+  When compressing   --> input .bmp image file to compress message in.
+  when decompressing --> input bmp file with compressed message.
+  
+  -o <filename/path>
+  When compressing   --> output .bmp file with compressed message.
+  When decompressing --> ouput .txt file with compressed message.
   
   
   
