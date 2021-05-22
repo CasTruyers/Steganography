@@ -40,11 +40,11 @@ to decompress: ./program -d -i <inputImage> -o <secretMessageOut.txt>
 ***have fun***
   
 ### sources
-  *https://www.youtube.com/watch?v=-y8FUvRq_88&t=524s
-  *https://www.youtube.com/watch?v=6Dk8s0F2gow
-  *https://www.youtube.com/watch?v=e-srF6c3TJ8  
-  *https://www.youtube.com/watch?v=Kj3iboADvUc
-  *https://www.youtube.com/watch?v=L3BwXbRDQM4&t=297s
-  *https://www.youtube.com/watch?v=xepNoHgNj0w&t=2007s
-  *https://www.youtube.com/watch?v=UaQjGziw71E&t=918s
-  *https://www.youtube.com/watch?v=TWEXCYQKyDc&t=607s
+  * https://www.youtube.com/watch?v=-y8FUvRq_88&t=524s
+  * https://www.youtube.com/watch?v=6Dk8s0F2gow
+  * https://www.youtube.com/watch?v=e-srF6c3TJ8  
+  * https://www.youtube.com/watch?v=Kj3iboADvUc
+  * https://www.youtube.com/watch?v=L3BwXbRDQM4&t=297s
+  * https://www.youtube.com/watch?v=xepNoHgNj0w&t=2007s
+  * https://www.youtube.com/watch?v=UaQjGziw71E&t=918s
+  * https://www.youtube.com/watch?v=TWEXCYQKyDc&t=607s
