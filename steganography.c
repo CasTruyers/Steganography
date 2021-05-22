@@ -36,6 +36,8 @@ unsigned char *extractSecretMessage();
 
 void writeTXT(unsigned char *secretMessage);
 
+void printTXT(unsigned char *secretMessage);
+
 void prepareUI();
 
 void confirmUI();
@@ -77,9 +79,10 @@ int main(int argc, char *argv[])
     else if(strcmp(UI[0], "-d")==0)
     {
         unsigned char *secretMessage = extractSecretMessage();
-        writeTXT(secretMessage);
 
-        printf("\n\nsecretMessage:\n%s\n", secretMessage);
+        writeTXT(secretMessage);
+        printfTXT(secretMessage);
+
         free(secretMessage);
     }
 
@@ -283,7 +286,17 @@ void writeTXT(unsigned char *secretMessage)
 {
     FILE *fp = fopen(UI[2], "w");
     fwrite(secretMessage,strlen((const char*)secretMessage),1,fp);
+    printf("\nSecret message has been written to output file.\n");
     fclose(fp);
+}
+
+void printTXT(unsigned char *secretMessage)
+{
+    char input;
+    printf("\nExpose secret message in terminal (y/n): ");
+    scanf("%c", input);
+    if((input == 'Y')||(input == 'y')) printf("\nsecretMessage:\n%s\n", secretMessage);
+    else printf("\nNot printing message...\n");
 }
 
 void printBinary(unsigned char byte)
