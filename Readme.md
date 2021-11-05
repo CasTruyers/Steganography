@@ -36,8 +36,6 @@ to decompress: ./program -d -i <inputImage> -o <secretMessageOut.txt>
   -o <filename/path> 
   * When compressing   --> output .bmp file with compressed message.    
   * When decompressing --> ouput .txt file with compressed message.     
-
-***have fun***
   
 ### sources
   * https://www.youtube.com/watch?v=-y8FUvRq_88&t=524s
